@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>𝕯𝖊𝖆𝖓'𝖘 𝖀𝖓𝖎𝖛𝖊𝖗𝖘𝖊 🍃 — Full-Stack &amp; WebGL Architect</title>
+    <meta name="description" content="Bespoke spatial engineering, interactive WebGL physics, and high-performance digital experiences crafted by Dean's Universe.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                        'slide-up': 'slideUp 0.8s ease-out forwards',
+                        'blur-in': 'blurIn 0.8s ease-out forwards',
+                        'scale-in': 'scaleIn 0.8s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+                        'marquee': 'marquee 25s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(24px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        blurIn: { '0%': { opacity: '0', filter: 'blur(8px)' }, '100%': { opacity: '1', filter: 'blur(0px)' } },
+                        scaleIn: { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-8px)' } },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(34, 197, 94, 0.3)' },
+                            '50%': { boxShadow: '0 0 40px rgba(34, 197, 94, 0.6), 0 0 80px rgba(34, 197, 94, 0.2)' }
+                        },
+                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Standalone hardware-accelerated difference magnifier lens */
+        #magnify-lens {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #ffffff;
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.2s ease-out, transform 0.04s linear;
+            will-change: transform, left, top;
+        }
+
+        .cursor-invert-active #magnify-lens {
+            opacity: 1;
+        }
+
+        /* Letter reveal */
+        .letter-animated {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: none;
+        }
+        .letter-animated.animate {
+            animation: letterReveal 0.6s ease-out forwards;
+        }
+        @keyframes letterReveal {
+            0% { opacity: 0; transform: translateY(24px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typing cursor */
+        .typing-line {
+            opacity: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #10B981;
+        }
+        .typing-line.typing {
+            animation: typing 2.4s steps(40, end) forwards, blink 1s infinite;
+        }
+        .typing-line.typed {
+            opacity: 1;
+            border-right: none;
+        }
+        @keyframes typing {
+            0% { opacity: 1; width: 0; }
+            100% { opacity: 1; width: 100%; }
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+
+<body class="h-full bg-black text-white antialiased selection:bg-white/20 selection:text-white">
+
+    <!-- Active Magnify Difference Lens -->
+    <div id="magnify-lens" aria-hidden="true"></div>
+
+    <!-- Gradient Background Highlights -->
+    <div aria-hidden="true" class="pointer-events-none fixed inset-0 overflow-hidden">
+        <div class="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-blue-600/20 blur-3xl opacity-0 animate-fade-in" style="animation-delay: 0.2s"></div>
+        <div class="absolute top-1/2 -right-32 h-96 w-96 rounded-full bg-purple-600/15 blur-3xl opacity-0 animate-fade-in" style="animation-delay: 0.4s"></div>
+        <div class="absolute bottom-0 left-1/2 h-72 w-72 rounded-full bg-indigo-600/10 blur-3xl opacity-0 animate-fade-in" style="animation-delay: 0.6s"></div>
+    </div>
+
+    <!-- Status Indicator Pill -->
+    <div class="fixed left-8 top-1/2 -translate-y-1/2 z-50 hidden xl:block transition-all duration-700 ease-out opacity-100 rounded-full shadow-2xl backdrop-blur-3xl">
+        <div class="inline-flex gap-3 hover:shadow-green-500/20 transition-all duration-500 group cursor-pointer relative overflow-hidden bg-black/40 border-white/20 border rounded-full pt-3 pr-6 pb-3 pl-6 shadow-2xl backdrop-blur-3xl items-center">
+            <div class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-400 shadow-lg animate-pulse-glow"></span>
+            </div>
+            <span class="text-sm font-semibold bg-gradient-to-r from-green-400 via-white to-gray-300 bg-clip-text text-transparent whitespace-nowrap tracking-wide">
+                Available for spatial builds
+            </span>
+            <div class="transform transition-transform duration-300 group-hover:translate-x-1">
+                <i data-lucide="arrow-right" class="w-4 h-4 text-green-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-40 my-4 px-4 md:px-8">
+        <div class="relative max-w-7xl mx-auto ring-1 ring-white/10 bg-white/10 border-white/20 border rounded-2xl px-6 h-20 flex items-center justify-between shadow-lg backdrop-blur-lg">
+            <a href="#" class="flex items-center gap-2">
+                <div class="bg-white/15 border-white/30 border rounded-xl py-2 px-3 backdrop-blur-md">
+                    <span class="block text-sm font-bold tracking-wider font-mono">𝕯𝖊𝖆𝖓'𝖘 𝖀𝖓𝖎𝖛𝖊𝖗𝖘𝖊 🍃</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+                <a href="#work" class="hover:text-white transition-colors">Artifacts</a>
+                <a href="#about" class="hover:text-white transition-colors">Architect</a>
+                <a href="#process" class="hover:text-white transition-colors">Pipeline</a>
+                <a href="https://github.com/DEANSUNIVERSE" target="_blank" class="hover:text-white transition-colors">Repository</a>
+            </nav>
+
+            <a href="mailto:epicgameglider@gmail.com" class="hidden md:inline-flex items-center gap-2 rounded-full bg-white/90 text-black px-5 py-2.5 text-sm font-semibold hover:bg-white transition-all hover:scale-105 shadow-lg">
+                <span>Dispatch Signal</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+
+            <button id="menuBtn" class="md:hidden rounded-xl bg-white/15 border border-white/30 p-2.5 text-white" aria-label="Open Navigation Menu">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobileNav" class="hidden md:hidden max-w-7xl mx-auto mt-2 bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 space-y-4 shadow-2xl">
+            <a href="#work" class="block text-gray-300 hover:text-white text-base">Artifacts</a>
+            <a href="#about" class="block text-gray-300 hover:text-white text-base">Architect</a>
+            <a href="#process" class="block text-gray-300 hover:text-white text-base">Pipeline</a>
+            <a href="https://github.com/DEANSUNIVERSE" target="_blank" class="block text-gray-300 hover:text-white text-base">Repository</a>
+            <a href="mailto:epicgameglider@gmail.com" class="block text-center rounded-xl bg-white text-black py-3 font-semibold">Dispatch Signal</a>
+        </div>
+    </header>
+
+    <!-- Hero Section (Magnify Trigger Zone) -->
+    <section id="heroSection" class="relative lg:pt-44 lg:pb-32 pt-36 pb-24 overflow-hidden">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="text-center">
+                <!-- Avatar -->
+                <div class="mb-8 flex justify-center opacity-0 animate-scale-in" style="animation-delay: 0.3s">
+                    <img alt="Dinesh Yadav" class="h-32 w-32 lg:h-40 lg:w-40 rounded-full object-cover ring-4 ring-white/20 shadow-2xl" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dean&backgroundColor=12151f">
+                </div>
+
+                <!-- Animated Headline -->
+                <div class="opacity-0 animate-slide-up" style="animation-delay: 0.5s">
+                    <h1 id="heroHeadline" class="lg:text-7xl xl:text-8xl text-5xl font-bold text-white tracking-tight">
+                        Full-Stack &amp; Spatial Architect
+                    </h1>
+                </div>
+
+                <div class="opacity-0 animate-slide-up" style="animation-delay: 0.7s">
+                    <p class="mt-6 max-w-3xl mx-auto text-xl lg:text-2xl text-gray-400 leading-relaxed font-light">
+                        Engineering 60 FPS Three.js simulations, GSAP kinetic timelines, and robust Node.js pipelines across Dean's Universe.
+                    </p>
+                </div>
+
+                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-slide-up" style="animation-delay: 0.9s">
+                    <a href="#work" class="inline-flex items-center gap-3 rounded-full bg-white text-black px-8 py-4 text-base font-semibold hover:bg-gray-100 transition-all hover:scale-105 shadow-xl">
+                        <i data-lucide="play" class="w-5 h-5"></i>
+                        Explore Artifacts
+                    </a>
+                    <a href="#about" class="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 backdrop-blur text-white px-8 py-4 text-base font-medium hover:bg-white/15 transition-all hover:scale-105">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                        Architectural Spec
+                    </a>
+                </div>
+
+                <!-- Metrics Strip -->
+                <div class="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto opacity-0 animate-fade-in" style="animation-delay: 1.1s">
+                    <div class="text-center">
+                        <div class="text-3xl text-white font-light">4+</div>
+                        <div class="text-xs font-mono text-gray-400 mt-1 uppercase">Years WebGL</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl text-white font-light">60 FPS</div>
+                        <div class="text-xs font-mono text-gray-400 mt-1 uppercase">Frame Budget</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl text-white font-light">100%</div>
+                        <div class="text-xs font-mono text-gray-400 mt-1 uppercase">Production Code</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marquee Ticker -->
+    <section class="border-y border-white/10 py-12 overflow-hidden bg-white/[0.01]">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <p class="text-center text-xs font-mono uppercase tracking-widest text-gray-500 mb-6">Engineered With Elite Toolchains</p>
+            <div class="relative overflow-hidden">
+                <div class="flex animate-marquee whitespace-nowrap">
+                    <div class="flex items-center gap-16 lg:gap-24 mx-8 font-mono text-gray-400 text-lg">
+                        <span>THREE.JS</span>
+                        <span>GSAP</span>
+                        <span>WEBGL_SHADERS</span>
+                        <span>NODE.JS</span>
+                        <span>TAILWIND_CSS</span>
+                        <span>ES6_KINETICS</span>
+                    </div>
+                    <div class="flex items-center gap-16 lg:gap-24 mx-8 font-mono text-gray-400 text-lg">
+                        <span>THREE.JS</span>
+                        <span>GSAP</span>
+                        <span>WEBGL_SHADERS</span>
+                        <span>NODE.JS</span>
+                        <span>TAILWIND_CSS</span>
+                        <span>ES6_KINETICS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services / Technical Disciplines -->
+    <section id="work" class="py-24 max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl lg:text-5xl font-light tracking-tight text-white mb-4">Technical Disciplines</h2>
+            <p class="text-lg text-gray-400">Full-spectrum spatial architecture and frontend engineering</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="rounded-3xl bg-gradient-to-b from-white/10 to-white/5 border border-white/10 p-8 hover:scale-[1.02] transition-transform">
+                <h3 class="text-2xl font-light text-white mb-4">WebGL &amp; 3D Graphics</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-6">Custom GLSL shaders, procedural particle buffers, and camera choreography.</p>
+                <ul class="space-y-3 text-sm text-gray-300">
+                    <li class="flex items-center gap-2">✓ Three.js Scene Graphs</li>
+                    <li class="flex items-center gap-2">✓ Custom GLSL Shaders</li>
+                    <li class="flex items-center gap-2">✓ Post-Processing Bloom</li>
+                </ul>
+            </div>
+
+            <div class="rounded-3xl bg-gradient-to-b from-white/10 to-white/5 border border-white/10 p-8 hover:scale-[1.02] transition-transform">
+                <h3 class="text-2xl font-light text-white mb-4">Kinetic Timeline Design</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-6">ScrollTrigger choreographies, multi-layer parallax, and responsive micro-actions.</p>
+                <ul class="space-y-3 text-sm text-gray-300">
+                    <li class="flex items-center gap-2">✓ GSAP Scroll Engines</li>
+                    <li class="flex items-center gap-2">✓ Continuous Sequencers</li>
+                    <li class="flex items-center gap-2">✓ Zero-Jank Micro-Actions</li>
+                </ul>
+            </div>
+
+            <div class="rounded-3xl bg-gradient-to-b from-white/10 to-white/5 border border-white/10 p-8 hover:scale-[1.02] transition-transform">
+                <h3 class="text-2xl font-light text-white mb-4">Full-Stack Runtimes</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-6">Scalable Node.js architectures, clean APIs, and automated edge deployment pipelines.</p>
+                <ul class="space-y-3 text-sm text-gray-300">
+                    <li class="flex items-center gap-2">✓ Express &amp; Node APIs</li>
+                    <li class="flex items-center gap-2">✓ Scalable Data Layers</li>
+                    <li class="flex items-center gap-2">✓ Zero-Downtime Deployment</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="bg-black/40 border border-white/10 rounded-[32px] p-8 lg:p-14 backdrop-blur-xl">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <img alt="Engineering rig" class="rounded-2xl object-cover w-full h-[360px] border border-white/10" src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2670&auto=format&fit=crop">
+                    </div>
+                    <div class="space-y-6">
+                        <h2 class="text-3xl font-light text-white">Dinesh Yadav // Dean</h2>
+                        <div class="w-16 h-0.5 bg-gradient-to-r from-white to-transparent"></div>
+                        <p class="text-gray-300 leading-relaxed text-sm lg:text-base">
+                            Full-stack software developer and spatial web architect focused on building high-performance interactive interfaces, custom WebGL simulations, and sound-reactive canvases.
+                        </p>
+                        <p class="text-gray-400 leading-relaxed text-sm">
+                            Operating under 𝕯𝖊𝖆𝖓'𝖘 𝖀𝖓𝖎𝖛𝖊𝖗𝖘𝖊 🍃, I eliminate framework bloat by creating clean, standalone architectures that achieve 60 FPS across all viewports without compromising aesthetic fidelity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Engineering Pipeline with Typing Code Simulator -->
+    <section id="process" class="py-24 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-light text-white">Engineering Pipeline</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-8">
+                    <h3 class="text-xl font-bold font-mono text-white mb-3">01 // Discovery</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Deep architectural analysis of frame budgets, mathematical physics models, and target device viewport boundaries.</p>
+                </div>
+
+                <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-8">
+                    <div class="rounded-xl bg-black border border-white/10 overflow-hidden mb-4 p-4 font-mono text-xs text-green-400">
+                        <div class="flex gap-2 mb-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-500/60"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/60"></span>
+                        </div>
+                        <div id="codeContainer" class="space-y-1"></div>
+                    </div>
+                    <h3 class="text-xl font-bold font-mono text-white mb-2">02 // Code Synthesis</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Clean JavaScript implementation with bespoke WebGL shaders and procedural math without library clutter.</p>
+                </div>
+
+                <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-8">
+                    <h3 class="text-xl font-bold font-mono text-white mb-3">03 // Deployment</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Rigorous Lighthouse auditing, responsive device validation, and instantaneous edge distribution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="py-20 border-t border-white/10 max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6 font-mono text-xs text-neutral-500">
+            <div>𝕯𝖊𝖆𝖓'𝖘 𝖀𝖓𝖎𝖛𝖊𝖗𝖘𝖊 🍃 &copy; 2026 DINESH YADAV. ALL RIGHTS RESERVED.</div>
+            <div class="flex gap-6">
+                <a href="https://github.com/DEANSUNIVERSE" target="_blank" class="hover:text-white">GITHUB</a>
+                <a href="https://linkedin.com/in/deandev" target="_blank" class="hover:text-white">LINKEDIN</a>
+                <a href="mailto:epicgameglider@gmail.com" class="hover:text-white">EMAIL</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Difference Lens & Engine Scripts -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // 1. Mobile Drawer Navigation
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        if (menuBtn && mobileNav) {
+            menuBtn.addEventListener('click', () => {
+                mobileNav.classList.toggle('hidden');
+            });
+        }
+
+        // 2. Direct Smooth Difference Magnify Lens Tracker
+        const lens = document.getElementById('magnify-lens');
+        const heroSection = document.getElementById('heroSection');
+
+        if (lens && heroSection) {
+            window.addEventListener('mousemove', (e) => {
+                lens.style.left = e.clientX + 'px';
+                lens.style.top = e.clientY + 'px';
+
+                const rect = heroSection.getBoundingClientRect();
+                if (
+                    e.clientX >= rect.left &&
+                    e.clientX <= rect.right &&
+                    e.clientY >= rect.top &&
+                    e.clientY <= rect.bottom
+                ) {
+                    document.body.classList.add('cursor-invert-active');
+                } else {
+                    document.body.classList.remove('cursor-invert-active');
+                }
+            });
+
+            window.addEventListener('mouseleave', () => {
+                document.body.classList.remove('cursor-invert-active');
+            });
+        }
+
+        // 3. Staggered Headline Animation
+        function animateHeadline() {
+            const headline = document.getElementById('heroHeadline');
+            if (!headline) return;
+            const text = headline.textContent.trim();
+            headline.innerHTML = '';
+            text.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.classList.add('letter-animated');
+                if (char === ' ') span.style.marginRight = '0.45rem';
+                setTimeout(() => span.classList.add('animate'), 300 + (index * 30));
+                headline.appendChild(span);
+            });
+        }
+
+        // 4. Typing Code Simulation
+        function startTypingSimulator() {
+            const container = document.getElementById('codeContainer');
+            if (!container) return;
+
+            const lines = [
+                "const scene = new THREE.Scene();",
+                "const camera = new THREE.PerspectiveCamera();",
+                "const engine = new DeanSpatialEngine({ fps: 60 });",
+                "engine.compileShaders(); // OK"
+            ];
+
+            let lineIdx = 0;
+            function typeNextLine() {
+                if (lineIdx >= lines.length) return;
+                const p = document.createElement('p');
+                p.classList.add('typing-line', 'typing');
+                p.textContent = lines[lineIdx];
+                container.appendChild(p);
+
+                setTimeout(() => {
+                    p.classList.remove('typing');
+                    p.classList.add('typed');
+                    lineIdx++;
+                    setTimeout(typeNextLine, 250);
+                }, 1600);
+            }
+            typeNextLine();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            animateHeadline();
+            setTimeout(startTypingSimulator, 1000);
+        });
+    </script>
+</body>
+</html>
